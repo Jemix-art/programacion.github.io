@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula Virtual - Bases de Datos</title>
+    
+    <!-- NOTA: Usamos Tailwind CSS para un diseño rápido, responsivo y profesional sin escribir cientos de líneas de CSS manual. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- NOTA: Fuente 'Inter' para mejorar la legibilidad en pantallas, crucial para entornos educativos. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- NOTA: FontAwesome para los iconos. Los iconos ayudan a identificar secciones visualmente más rápido que el texto. -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* NOTA: Animación suave para cuando cambiamos de tema. Esto reduce la carga cognitiva del cambio brusco. */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos para el scrollbar personalizado (más elegante) */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .active-nav {
+            background-color: #2563eb; /* Azul brillante para indicar selección */
+            color: white;
+            border-right: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- 
+      ========================================
+      ENCABEZADO (HEADER)
+      ========================================
+      NOTA: El header es fijo y contiene la identidad institucional. 
+      Se usa Flexbox para separar los elementos a los extremos (justify-between).
+    -->
+    <header class="bg-slate-900 text-white shadow-lg z-20 h-20 flex-shrink-0">
+        <div class="container mx-auto px-6 h-full flex items-center justify-between">
+            <!-- Izquierda: Logo y Universidad -->
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-2 rounded-full w-12 h-12 flex items-center justify-center text-slate-900 font-bold text-xl">
+                    <i class="fa-solid fa-university"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">Universidad Nacional de Loja</h1>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Excelencia Académica</p>
+                </div>
+            </div>
+
+            <!-- Derecha: Unidad Académica -->
+            <div class="text-right hidden md:block">
+                <h2 class="text-sm font-semibold text-blue-300">Unidad de Educación a Distancia y en Línea</h2>
+                <p class="text-xs text-slate-400">Aula Virtual: Bases de Datos I</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 
+      ========================================
+      CONTENEDOR CENTRAL (LAYOUT PRINCIPAL)
+      ========================================
+      NOTA: Usamos 'flex' para poner la barra lateral (aside) junto al contenido (main).
+      'h-full' asegura que ocupe todo el alto restante.
+    -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- 
+          BARRA LATERAL (SIDEBAR/NAVEGACIÓN)
+          NOTA: Aquí van los temas. Es vital que sea escaneable visualmente.
+          Usamos un color oscuro (slate-800) para contraste con el contenido claro.
+        -->
+        <aside class="w-72 bg-slate-800 text-slate-300 flex-shrink-0 overflow-y-auto hidden md:block border-r border-slate-700">
+            <div class="p-6">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Temario del Curso</h3>
+                <nav class="space-y-1">
+                    <!-- Los botones llaman a la función javascript 'loadContent' -->
+                    <button onclick="loadContent('inicio')" id="btn-inicio" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3 active-nav">
+                        <i class="fa-solid fa-house w-5"></i> Inicio
+                    </button>
+                    
+                    <button onclick="loadContent('fundamentos')" id="btn-fundamentos" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-solid fa-database w-5"></i> Fundamentos
+                    </button>
+
+                    <button onclick="loadContent('software-libre')" id="btn-software-libre" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-brands fa-linux w-5"></i> BD Software Libre
+                    </button>
+
+                    <button onclick="loadContent('software-paga')" id="btn-software-paga" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-brands fa-microsoft w-5"></i> BD Software Paga
+                    </button>
+
+                    <button onclick="loadContent('no-relacionales')" id="btn-no-relacionales" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-solid fa-leaf w-5"></i> No Relacionales
+                    </button>
+
+                    <button onclick="loadContent('relacionales')" id="btn-relacionales" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-solid fa-table w-5"></i> Relacionales (SQL)
+                    </button>
+
+                    <button onclick="loadContent('normalizacion')" id="btn-normalizacion" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-solid fa-arrow-down-short-wide w-5"></i> Normalización
+                    </button>
+
+                    <button onclick="loadContent('seguridad')" id="btn-seguridad" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-3">
+                        <i class="fa-solid fa-shield-halved w-5"></i> Seguridad
+                    </button>
+
+                    <div class="my-4 border-t border-slate-700"></div>
+
+                    <button onclick="loadContent('evaluacion')" id="btn-evaluacion" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-red-900/50 hover:text-red-200 text-red-300 transition-colors flex items-center gap-3 font-semibold">
+                        <i class="fa-solid fa-clipboard-check w-5"></i> Evaluación Final
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 
+          ÁREA DE CONTENIDO (MAIN)
+          NOTA: Aquí se inyectará dinámicamente el contenido de cada lección.
+          El fondo es claro para facilitar la lectura prolongada.
+        -->
+        <main class="flex-1 overflow-y-auto bg-slate-50 relative">
+            <!-- Botón móvil para menú (solo visible en pantallas pequeñas) -->
+            <button class="md:hidden absolute top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded shadow" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="max-w-4xl mx-auto p-8 md:p-12 pb-24" id="content-area">
+                <!-- El contenido se carga aquí mediante JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 
+      ========================================
+      PIE DE PÁGINA (FOOTER)
+      ========================================
+      NOTA: Información legal y créditos. Mantenemos el estilo oscuro del header para cerrar visualmente la página.
+    -->
+    <footer class="bg-slate-900 text-slate-400 text-sm py-4 border-t border-slate-800">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <p>&copy; 2024 Universidad Nacional de Loja. Todos los derechos reservados.</p>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white transition-colors">Soporte</a>
+                <a href="#" class="hover:text-white transition-colors">Política de Privacidad</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 
+      ========================================
+      LÓGICA JAVASCRIPT
+      ========================================
+    -->
+    <script>
+        // BASE DE DATOS DE CONTENIDO (Simulación)
+        // NOTA: Guardamos el contenido en objetos para simular una base de datos real.
+        // Esto permite cambiar el contenido instantáneamente sin recargar la página.
+        const courseData = {
+            'inicio': {
+                title: "Bienvenido al Módulo de Bases de Datos",
+                subtitle: "Introducción al curso",
+                icon: "fa-house",
+                color: "text-blue-600",
+                html: `
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <img src="https://images.unsplash.com/photo-1544383835-bda2bc66a55d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Aula Virtual" class="w-full h-64 object-cover rounded-lg mb-6">
+                        <p class="text-lg text-slate-600 mb-4">
+                            Bienvenido, estudiante. Este entorno virtual ha sido diseñado para guiarte a través de los conceptos fundamentales y avanzados del diseño y gestión de bases de datos.
+                        </p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Objetivos de Aprendizaje:</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-slate-600 mb-6">
+                            <li>Comprender la diferencia entre datos e información.</li>
+                            <li>Diferenciar entre modelos relacionales y NoSQL.</li>
+                            <li>Diseñar esquemas normalizados y eficientes.</li>
+                            <li>Aplicar principios básicos de seguridad.</li>
+                        </ul>
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                            <p class="text-blue-700 font-medium">Instrucción: Utiliza el menú lateral para navegar por los temas en orden secuencial.</p>
+                        </div>
+                    </div>
+                `
+            },
+            'fundamentos': {
+                title: "Fundamentos de Base de Datos",
+                subtitle: "Conceptos Básicos",
+                icon: "fa-database",
+                color: "text-indigo-600",
+                html: `
+                    <div class="space-y-6 fade-in">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold mb-3">¿Qué es una Base de Datos?</h3>
+                            <p class="text-slate-600 mb-4">Una base de datos es una recopilación organizada de información o datos estructurados, que normalmente se almacena de forma electrónica en un sistema informático.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-slate-800"><i class="fa-solid fa-table me-2"></i>Dato</h4>
+                                    <p class="text-sm text-slate-500">Unidad mínima (ej: "25", "Juan"). Por sí solo no tiene significado.</p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-slate-800"><i class="fa-solid fa-circle-info me-2"></i>Información</h4>
+                                    <p class="text-sm text-slate-500">Conjunto de datos procesados con contexto (ej: "Juan tiene 25 años").</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'software-libre': {
+                title: "Bases de Datos de Software Libre",
+                subtitle: "Open Source",
+                icon: "fa-brands fa-linux",
+                color: "text-green-600",
+                html: `
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <p class="mb-6 text-slate-600">El software libre permite a los usuarios estudiar, modificar y mejorar el software. En bases de datos, esto reduce costos de licencia significativamente.</p>
+                        
+                        <div class="grid gap-6 md:grid-cols-2">
+                            <div class="border rounded-lg p-5 hover:shadow-md transition-shadow">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold"><i class="fa-solid fa-dolphin"></i></div>
+                                    <h4 class="font-bold text-lg">MySQL</h4>
+                                </div>
+                                <p class="text-sm text-slate-500">La base de datos de código abierto más popular del mundo. Ideal para aplicaciones web.</p>
+                            </div>
+                            <div class="border rounded-lg p-5 hover:shadow-md transition-shadow">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold"><i class="fa-solid fa-elephant"></i></div>
+                                    <h4 class="font-bold text-lg">PostgreSQL</h4>
+                                </div>
+                                <p class="text-sm text-slate-500">Conocida por su robustez y cumplimiento de estándares SQL. Muy potente para analítica.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'software-paga': {
+                title: "Bases de Datos Comerciales",
+                subtitle: "Licencias y Soporte Enterprise",
+                icon: "fa-brands fa-microsoft",
+                color: "text-purple-600",
+                html: `
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <div class="flex items-start gap-4 mb-6">
+                            <div class="p-3 bg-purple-100 text-purple-600 rounded-lg">
+                                <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">¿Por qué pagar?</h3>
+                                <p class="text-slate-600">Las bases de datos comerciales ofrecen soporte técnico dedicado, herramientas avanzadas de administración y optimización extrema para grandes corporaciones.</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-2 p-3 bg-slate-50 rounded">
+                                <i class="fa-brands fa-oracle text-red-600"></i>
+                                <span class="font-semibold">Oracle Database:</span> Líder en el mercado corporativo.
+                            </li>
+                            <li class="flex items-center gap-2 p-3 bg-slate-50 rounded">
+                                <i class="fa-brands fa-microsoft text-blue-600"></i>
+                                <span class="font-semibold">Microsoft SQL Server:</span> Integración nativa con ecosistema Windows y Azure.
+                            </li>
+                        </ul>
+                    </div>
+                `
+            },
+            'no-relacionales': {
+                title: "Bases de Datos No Relacionales",
+                subtitle: "NoSQL",
+                icon: "fa-solid fa-leaf",
+                color: "text-green-500",
+                html: `
+                     <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <h3 class="text-xl font-bold mb-4">Más allá de las tablas</h3>
+                        <p class="text-slate-600 mb-6">NoSQL (Not Only SQL) son bases de datos diseñadas para modelos de datos específicos y tienen esquemas flexibles. Son ideales para Big Data y aplicaciones en tiempo real.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-green-50 p-4 rounded text-center">
+                                <i class="fa-solid fa-file-code text-3xl text-green-600 mb-2"></i>
+                                <h4 class="font-bold">Documentales</h4>
+                                <p class="text-xs">MongoDB</p>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded text-center">
+                                <i class="fa-solid fa-key text-3xl text-yellow-600 mb-2"></i>
+                                <h4 class="font-bold">Clave-Valor</h4>
+                                <p class="text-xs">Redis</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded text-center">
+                                <i class="fa-solid fa-diagram-project text-3xl text-blue-600 mb-2"></i>
+                                <h4 class="font-bold">Grafos</h4>
+                                <p class="text-xs">Neo4j</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'relacionales': {
+                title: "Bases de Datos Relacionales",
+                subtitle: "El Modelo RDBMS",
+                icon: "fa-solid fa-table",
+                color: "text-blue-700",
+                html: `
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <p class="text-slate-600 mb-4">Basadas en el modelo relacional, organizan los datos en tablas (filas y columnas). Utilizan SQL (Structured Query Language) para su gestión.</p>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border border-slate-200">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3 text-left">ID</th>
+                                        <th class="p-3 text-left">Nombre</th>
+                                        <th class="p-3 text-left">Carrera</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-t">
+                                        <td class="p-3">001</td>
+                                        <td class="p-3">Ana López</td>
+                                        <td class="p-3">Sistemas</td>
+                                    </tr>
+                                    <tr class="border-t">
+                                        <td class="p-3">002</td>
+                                        <td class="p-3">Carlos Ruiz</td>
+                                        <td class="p-3">Derecho</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-xs text-center text-slate-400 mt-2">Ejemplo visual de una tabla relacional</p>
+                    </div>
+                `
+            },
+            'normalizacion': {
+                title: "Normalización",
+                subtitle: "Optimizando la Estructura",
+                icon: "fa-solid fa-arrow-down-short-wide",
+                color: "text-teal-600",
+                html: `
+                     <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <h3 class="font-bold text-lg mb-2">Objetivo: Reducir la Redundancia</h3>
+                        <p class="text-slate-600 mb-6">La normalización es el proceso de organizar los datos para minimizar la redundancia (duplicados) y evitar anomalías en la inserción, actualización y borrado.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold">1FN</div>
+                                <div>
+                                    <p class="font-semibold">Primera Forma Normal</p>
+                                    <p class="text-xs text-slate-500">Eliminar grupos repetitivos, atomicidad.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold">2FN</div>
+                                <div>
+                                    <p class="font-semibold">Segunda Forma Normal</p>
+                                    <p class="text-xs text-slate-500">Dependencia funcional completa.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold">3FN</div>
+                                <div>
+                                    <p class="font-semibold">Tercera Forma Normal</p>
+                                    <p class="text-xs text-slate-500">Eliminar dependencias transitivas.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'seguridad': {
+                title: "Seguridad en Base de Datos",
+                subtitle: "Protección de la Información",
+                icon: "fa-solid fa-shield-halved",
+                color: "text-red-600",
+                html: `
+                     <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="font-bold text-lg mb-3">La Triada CID</h3>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-600">
+                                    <li><strong>Confidencialidad:</strong> Solo usuarios autorizados acceden.</li>
+                                    <li><strong>Integridad:</strong> Los datos no son alterados indebidamente.</li>
+                                    <li><strong>Disponibilidad:</strong> Los datos están accesibles cuando se necesitan.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded border border-red-100">
+                                <h4 class="font-bold text-red-700 mb-2"><i class="fa-solid fa-triangle-exclamation me-2"></i>SQL Injection</h4>
+                                <p class="text-sm text-red-600">Es la vulnerabilidad más común donde un atacante interfiere con las consultas que una aplicación hace a su base de datos.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'evaluacion': {
+                title: "Conclusiones y Evaluación",
+                subtitle: "Cierre de Tutoría",
+                icon: "fa-solid fa-clipboard-check",
+                color: "text-slate-800",
+                html: `
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 fade-in">
+                        <h3 class="text-xl font-bold mb-4">Validación de Conocimientos</h3>
+                        <p class="mb-6 text-slate-600">Responde el siguiente cuestionario para aprobar el módulo.</p>
+
+                        <!-- FORMULARIO DE QUIZ -->
+                        <form id="quizForm" class="space-y-6">
+                            
+                            <!-- Pregunta 1 -->
+                            <div class="p-4 bg-slate-50 rounded-lg">
+                                <p class="font-semibold mb-3">1. ¿Qué característica define mejor a una base de datos Relacional?</p>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q1" value="a" class="accent-blue-600">
+                                        <span class="text-sm">Uso de documentos JSON</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q1" value="b" class="accent-blue-600">
+                                        <span class="text-sm">Organización en tablas con filas y columnas</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q1" value="c" class="accent-blue-600">
+                                        <span class="text-sm">No tener esquema fijo</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Pregunta 2 -->
+                            <div class="p-4 bg-slate-50 rounded-lg">
+                                <p class="font-semibold mb-3">2. ¿Cuál es el objetivo principal de la Normalización?</p>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q2" value="a" class="accent-blue-600">
+                                        <span class="text-sm">Hacer la base de datos más grande</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q2" value="b" class="accent-blue-600">
+                                        <span class="text-sm">Reducir la redundancia de datos</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q2" value="c" class="accent-blue-600">
+                                        <span class="text-sm">Encriptar las contraseñas</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Pregunta 3 -->
+                            <div class="p-4 bg-slate-50 rounded-lg">
+                                <p class="font-semibold mb-3">3. MySQL y PostgreSQL son ejemplos de:</p>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q3" value="a" class="accent-blue-600">
+                                        <span class="text-sm">Software de Paga</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="q3" value="b" class="accent-blue-600">
+                                        <span class="text-sm">Software Libre (Open Source)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="submitQuiz()" class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition-colors w-full md:w-auto font-semibold">
+                                Enviar Respuestas
+                            </button>
+                        </form>
+
+                        <!-- RESULTADO (Oculto por defecto) -->
+                        <div id="quizResult" class="hidden mt-6 p-4 rounded-lg text-center border-2">
+                            <div id="resultIcon" class="text-4xl mb-2"></div>
+                            <h4 id="resultTitle" class="text-xl font-bold"></h4>
+                            <p id="resultMessage" class="text-sm"></p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // Función Principal para Cargar Contenido
+        function loadContent(topicId) {
+            const container = document.getElementById('content-area');
+            const data = courseData[topicId];
+
+            if(!data) return;
+
+            // 1. Actualizar el área visual
+            // NOTA: Construimos el encabezado del tema y luego inyectamos el HTML específico del tema.
+            container.innerHTML = `
+                <div class="mb-8 fade-in">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="p-3 bg-white rounded-lg shadow-sm ${data.color}">
+                            <i class="fa-solid ${data.icon} text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-slate-800">${data.title}</h2>
+                            <p class="text-slate-500 font-medium">${data.subtitle}</p>
+                        </div>
+                    </div>
+                    <div class="h-1 w-full bg-slate-200 rounded mt-4">
+                        <div class="h-1 bg-blue-500 rounded" style="width: 15%"></div> 
+                        <!-- NOTA: En una app real, este width sería dinámico según el progreso -->
+                    </div>
+                </div>
+                ${data.html}
+            `;
+
+            // 2. Actualizar estilos del menú (Active State)
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active-nav');
+                // Restaurar estilos base
+                btn.classList.add('text-slate-300');
+            });
+            
+            const activeBtn = document.getElementById(`btn-${topicId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('active-nav');
+                activeBtn.classList.remove('text-slate-300');
+            }
+        }
+
+        // Lógica del Quiz
+        function submitQuiz() {
+            // Respuestas correctas
+            const answers = {
+                q1: 'b',
+                q2: 'b',
+                q3: 'b'
+            };
+
+            let score = 0;
+            const form = document.getElementById('quizForm');
+            const formData = new FormData(form);
+            let total = 3;
+
+            // Verificar respuestas
+            for (let [key, value] of formData.entries()) {
+                if(answers[key] === value) score++;
+            }
+
+            // Mostrar resultado visual
+            const resultDiv = document.getElementById('quizResult');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMsg = document.getElementById('resultMessage');
+            const resultIcon = document.getElementById('resultIcon');
+
+            resultDiv.classList.remove('hidden', 'bg-green-50', 'border-green-200', 'text-green-800', 'bg-red-50', 'border-red-200', 'text-red-800');
+
+            if(score >= 2) {
+                // APROBADO
+                resultDiv.classList.add('bg-green-50', 'border-green-200', 'text-green-800');
+                resultIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                resultTitle.innerText = "¡Aprobado!";
+                resultMsg.innerText = `Has obtenido ${score}/${total}. Has demostrado dominio de los conceptos básicos.`;
+            } else {
+                // REPROBADO
+                resultDiv.classList.add('bg-red-50', 'border-red-200', 'text-red-800');
+                resultIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                resultTitle.innerText = "Reprobado";
+                resultMsg.innerText = `Has obtenido ${score}/${total}. Te recomendamos repasar los temas anteriores.`;
+            }
+        }
+
+        // Cargar contenido inicial
+        window.onload = () => {
+            loadContent('inicio');
+        };
+
+        // Función para menú móvil
+        function toggleMobileMenu() {
+            const aside = document.querySelector('aside');
+            aside.classList.toggle('hidden');
+            aside.classList.toggle('absolute');
+            aside.classList.toggle('z-40');
+            aside.classList.toggle('h-full');
+        }
+
+    </script>
+</body>
+</html>
